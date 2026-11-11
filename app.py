@@ -1,58 +1,57 @@
 from tkinter import *
 from tkinter import messagebox
 import base64
-import os
+
+def open_result_window(title, bg_color, label_text, result_text):
+    popup = Toplevel(screen)
+    popup.title(title)
+    popup.geometry("400x200")
+    popup.minsize(250, 150)
+    popup.configure(bg=bg_color)
+
+    popup.columnconfigure(0, weight=1)
+    popup.rowconfigure(1, weight=1)
+
+    Label(popup, text=label_text, font=("arial", 12, "bold"), fg="white", bg=bg_color). grid(row=0, column=0, sticky="w", padx=10, pady=(10,5))
+
+    text_out = Text(popup, font=("Roboto", 10), bg="white", relief=GROOVE, wrap=WORD, bd=0)
+    text_out.grid(row=1, column=0, sticky="nsew", padx=10, pady=(0, 10))
+    text_out.insert(END, result_text)
 
 def decrypt():
     password=code.get()
 
     if password=="1234":
-        screen2=Toplevel(screen)
-        screen2.title("decryption")
-        screen2.geometry("400x200")
-        screen2.configure(bg="#00bd56")
-
-        message=text1.get(1.0, END)
-        decode_message=message.encode("ascii")
-        base64_bytes=base64.b64decode(decode_message)
-        decrypt=base64_bytes.decode("ascii")
-
-        Label(screen2,text="DECRYPT", font="arial", fg="white", bg="#00bd56").place(x=10, y=0)
-        text2=Text(screen2, font="Rpbote 10", bg="white", relief=GROOVE, wrap=WORD, bd=0)
-        text2.place(x=10, y=40, width=380, height=150)
-
-        text2.insert(END, decrypt)
-
+        message = text1.get("1.0", "end-1c")
+        try:
+            decode_message = message.encode("ascii")
+            base64_bytes = base64.b64decode(decode_message)
+            decrypted_msg = base64_bytes.decode("ascii")
+            open_result_window("Decryption", "#00bd56", "DECRYPT", decrypted_msg)
+        except:
+            messagebox.showerror("Decryption", "Invalid Base64 text")
+        
     elif password=="":
-        messagebox.showerror("encryption", "Input Password")
+        messagebox.showerror("Encryption", "Input Password")
+    else:
+        messagebox.showerror("Encryption", "Invalid Password")
 
-    elif password !="1234":
-        messagebox.showerror("encryption", "Invalid Password")
 def encrypt():
     password=code.get()
 
     if password=="1234":
-        screen1=Toplevel(screen)
-        screen1.title("encryption")
-        screen1.geometry("400x200")
-        screen1.configure(bg="#ed3833")
+        message = text1.get("1.0", "end-1c")
+        encode_message = message.encode("ascii")
+        base64_bytes = base64.b64encode(encode_message)
+        encrypted_msg = base64_bytes.decode("ascii")
+        open_result_window("Encryption", "#ed3833", "ENCRYPT", encrypted_msg)
 
-        message=text1.get(1.0, END)
-        encode_message=message.encode("ascii")
-        base64_bytes=base64.b64encode(encode_message)
-        encrypt=base64_bytes.decode("ascii")
-
-        Label(screen1,text="ENCRYPT", font="arial", fg="white", bg="#ed3833").place(x=10, y=0)
-        text2=Text(screen1, font="Rpbote 10", bg="white", relief=GROOVE, wrap=WORD, bd=0)
-        text2.place(x=10, y=40, width=380, height=150)
-
-        text2.insert(END, encrypt)
-
+   
     elif password=="":
-        messagebox.showerror("encryption", "Input Password")
+        messagebox.showerror("Encryption", "Input Password")
+    else:
+        messagebox.showerror("Encryption", "Invalid Password")
 
-    elif password !="1234":
-        messagebox.showerror("encryption", "Invalid Password")
 
 def main_screen():
 
@@ -62,25 +61,31 @@ def main_screen():
 
     screen=Tk()
     screen.geometry("375x398")
-
+    screen.minsize(320, 320)
     screen.title("EncApp")
+
+    screen.columnconfigure(0, weight=1)
+    screen.columnconfigure(1, weight=1)
+    screen.rowconfigure(1,weight=1)
 
     def reset():
         code.set("")
         text1.delete(1.0,END)
 
-    Label(text="Enter text for encryption and decryption", fg="black", font=("calibri", 13)).place(x=10, y=10)
-    text1=Text(font="Robote 20", bg="white", relief=GROOVE, wrap=WORD, bd=0)
-    text1.place(x=10, y=50, width=355, height=100)
+    Label(text="Enter text for encryption and decryption", fg="black", font=("calibri", 13)).grid(row=0, column=0, columnspan=2, sticky="w", padx=10, pady=(10,5))
 
-    Label(text="Enter secret key for encryption and decryption", fg="black", font=("calibri", 13)).place(x=10, y=170)
+    text1 = Text(screen, font=("Roboto", 14), bg="white", relief=GROOVE, wrap=WORD, bd=0)
+    text1.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
+ 
+
+    Label(text="Enter secret key for encryption and decryption", fg="black", font=("calibri", 13)).grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=(10,5))
 
     code=StringVar()
-    Entry(textvariable=code, width=19, bd=0, font=("arial", 25),show="*").place(x=10, y=200)
+    Entry(screen, textvariable=code, width=19, bd=0, font=("arial", 25),show="*").grid(row=3, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
 
-    Button(text="ENCRYPT", height="2", width=23, bg="#ed3833", fg="white", bd=0, command=encrypt).place(x=10, y=250)
-    Button(text="DECRYPT", height="2", width=23, bg="#00bd56", fg="white", bd=0, command=decrypt).place(x=200, y=250)
-    Button(text="RESET", height="2", width=50, bg="#1089ff", fg="white", bd=0, command=reset).place(x=10, y=300)
+    Button(text="ENCRYPT", height=2,  bg="#ed3833", fg="white", bd=0, command=encrypt).grid(row=4, column=0, sticky="ew", padx=(10, 5), pady=(10, 5))
+    Button(text="DECRYPT",  height=2, bg="#00bd56", fg="white", bd=0, command=decrypt).grid(row=4, column=1, sticky="ew", padx=(5, 10), pady=(10, 5))
+    Button(text="RESET", height=2, bg="#1089ff", fg="white", bd=0, command=reset).grid(row=5, column=0, columnspan=2, sticky="ew", padx=(10), pady=(5, 10))
 
     screen.mainloop()
 
